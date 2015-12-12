@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Login in and parse the html """
+
 import requests
 from requests import Session
 import re
