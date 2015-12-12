@@ -16,4 +16,4 @@ def get_info(username):
 		return jsonify(infos)
 
 if __name__=='__main__':
-	app.run()
+	app.run(hohost='0.0.0.0', port=8000)
