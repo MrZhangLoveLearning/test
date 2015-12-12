@@ -12,8 +12,13 @@ def get_info(username):
 		# abort(404)
 		return 'login fail'
 	else:
-		infos = main.parse_electric_info(content)
-		return jsonify(infos)
+		try:
+			infos = main.parse_electric_info(content)
+			return jsonify(infos)
+		except IndexError as in_error:
+			return 'wrong username'
+
+		
 
 if __name__=='__main__':
-	app.run(hohost='0.0.0.0', port=8000)
+	app.run(host='0.0.0.0', port=8000)
