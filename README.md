@@ -18,8 +18,8 @@
 
 ###post api
 
-- host : http://115.28.30.14:8000
-- url  : /api/post/`buildingNum`
+- host : http://115.28.30.14:8000/api/post
+- data  : Username:`buildingNum`
 - buildingNum : the location of students' apartment
 - return : {'balance': ..., 'currentUsed': ..., 'readTime': ...}
 - balance : the left degree of electric
