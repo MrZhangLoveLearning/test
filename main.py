@@ -109,7 +109,7 @@ def parse_electric_info(content):
 
     Returns:
         a dict object
-    >>> text = get_text('220706')
+    >>> text = get_text('220708')
     >>> parse_electric_info(text)  # doctest: +ELLIPSIS
     {'balance': ..., 'currentUsed': ..., 'readTime': ...}
 
