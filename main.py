@@ -1,131 +1,75 @@
 # -*- coding: utf-8 -*-
-"""Login in and parse the html """
+"""Login and simulate choose a class"""
 
 import requests
 from requests import Session
-import re
+from requests.exceptions import RequestException
 
-def get_text(username):
-    """Login
-    Args: 
-        username: the localtion of your building like 220706
-                  the medicine school add Y like Y1101
-                  the internation school add GJ  GJ1501
-    Returns:
-        the text of informations
+TIME_OUT = 2.0
+LOGIN_HOST = (['http://218.64.56.18/%s',
+	'http://218.64.56.18:8080/%s',
+	'http://218.64.56.18:8081/%s'])
+WRONG_USENAME = "密码错误"
+CONECTION_ERROR = "登录失败！"
 
-    logining test
+def login(username, passwd):
+	"""Login 
 
-    >>> content = get_text('220706')
-    >>> content != None
-    True
-
-    """
-    session = Session()
-    login_url = 'http://222.204.3.210/ssdf/Account/LogOn'
-    response = session.post(login_url, data={'UserName':username})
-    if response.ok:
-        return response.content
-    else:
-        return None
-
-READ_TIME = re.compile(
-    ur'''
-    # may be  have two read time 
-    # one is the first time read 
-    # the other is what we need ---the newest
-    <td>\s*读数时间:\s*</td>  #  reading time 
-
-    \s*   
-         
-    # the time formate 2015-12-12 12:00
-    <td>(
-        \d{4}   # the year
-        -
-        \d{1,2} # the month
-        -
-        \d{1,2} # the day
-        \s
-        \d{2}   # the hour
-        :
-        \d{2}   # the minute
-        )\s*</td>
-
-    ''',
-    re.UNICODE | re.VERBOSE)
-
-CURRENT_USED = re.compile(
-    ur'''
-
-    # current used the degree of electric
-    # this month
-    # one is the total
-    # the other we need is used now
-
-    <td>\s*本月度数\W度\W{2}\s*</td>
-    \s*
-    <td>
-    # the degree of the electric
-    (?P<degree>
-    # the decimals of degree
-    \d+      
-    \.       
-    \d+)      
-    \s*
-    </td>
+	>>> login('6102114007', '152017')  # doctest: +ELLIPSIS
+	<requests.sessions.Session object at 0x...>
 
 
+	"""
+	sesion = Session()
+	data = {}
+	data['USERNAME'] = username
+	data['PASSWORD'] = passwd
+	data['useDogCode'] = ''
+	data['RANDOMCODE'] = ''
+	data['x'] = 22
+	data['y'] = 9
+	ip = LOGIN_HOST [int(username)%3]
+	# print ip
+	try:
+		res = sesion.post(ip % (''), data=data, timeout=TIME_OUT)
+		res = sesion.post(ip % ('Logon.do?method=logonBySSO'),
+			data={}, timeout=TIME_OUT)
+		if res.ok:
+			return sesion
+		else:
+			return WRONG_USENAME
+	except RequestException as error:
+		return CONECTION_ERROR
 
-    ''',
-    re.UNICODE | re.VERBOSE)
+def rob_class(sesion, url):
+	try:
+		res = sesion.get(url, timeout=TIME_OUT)
+		return res.content
+	except RequestException as error:
+		return CONECTION_ERROR		
 
-BALANCE = re.compile(
-    ur'''
+def rob(username, passwd, url):
+	st1 = login(username, passwd)
+	if st1 == WRONG_USENAME:
+		return WRONG_USENAME
+	if st1 == CONECTION_ERROR:
+		return CONECTION_ERROR
+	st2 = rob_class(st1, url)
+	return st2
 
-    # current left the degree of electric
-    # this month
-        
-
-    <td>\s*现金电量余额\W度\W{2}\s*</td>
-    \s*
-    <td>
-    # the degree of the electric
-    (?P<degree>
-    # the decimals of degree
-    \d+      
-    \.       
-    \d+)      
-    \s*
-    </td>
-
-
-
-    ''',
-    re.UNICODE | re.VERBOSE)
-
-
-def parse_electric_info(content):
-    """parse the informations
-
-    Returns:
-        a dict object
-    >>> text = get_text('220708')
-    >>> parse_electric_info(text)  # doctest: +ELLIPSIS
-    {'balance': ..., 'currentUsed': ..., 'readTime': ...}
-
-    """
-    text = content.decode('utf-8')
-    infos = {}
-    read_list = READ_TIME.findall(text)
-    read_times = len(read_list)
-    infos['readTime'] = read_list[read_times-1]
-    current_list = CURRENT_USED.findall(text)
-    current_times = len(current_list)
-    infos['currentUsed'] = current_list[current_times-1]
-    infos['balance'] = BALANCE.findall(text)[0] 
-    print infos
-    return infos
 
 if __name__ == '__main__':
-    import doctest
-    doctest.testmod()
+	import doctest
+	doctest.testmod()
+
+
+
+		
+
+
+
+
+
+
+
+
