@@ -14,7 +14,7 @@ def allow_cross_domain(fun):
     def wrapper_fun(*args, **kwargs):
         rst = make_response(fun(*args, **kwargs))
         # rst.headers['Access-Control-Allow-Origin'] = '*'
-        rst.headers['Content-Type'] = 'utf-8'
+        rst.headers['Content-Type'] = 'text/html;charset=utf-8'
         rst.headers['Access-Control-Allow-Methods'] = 'PUT,GET,POST,DELETE'
         allow_headers = "Referer,Accept,Origin,User-Agent"
         rst.headers['Access-Control-Allow-Headers'] = allow_headers
