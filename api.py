@@ -34,6 +34,7 @@ def post_info():
             username = request.form.get('USERNAME')
             passwd = request.form.get('PASSWORD')
             url = request.form.get('URL')
+            print url
             if username and passwd and url:
                 content = main.rob(username, passwd, url)
                 if content:
