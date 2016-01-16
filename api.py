@@ -1,4 +1,5 @@
-# coding:utf-8
+# -*- coding: utf-8 -*-
+
 from flask import Flask, abort, jsonify, request
 from functools import wraps
 from flask import make_response
@@ -12,7 +13,8 @@ def allow_cross_domain(fun):
     @wraps(fun)
     def wrapper_fun(*args, **kwargs):
         rst = make_response(fun(*args, **kwargs))
-        rst.headers['Access-Control-Allow-Origin'] = '*'
+        # rst.headers['Access-Control-Allow-Origin'] = '*'
+        rst.headers['Content-Type'] = 'text/html;charset=utf-8'
         rst.headers['Access-Control-Allow-Methods'] = 'PUT,GET,POST,DELETE'
         allow_headers = "Referer,Accept,Origin,User-Agent"
         rst.headers['Access-Control-Allow-Headers'] = allow_headers
@@ -20,20 +22,6 @@ def allow_cross_domain(fun):
     return wrapper_fun
 
 
-@app.route('/api/get/<username>', methods=['GET', 'POST'])
-@allow_cross_domain
-def get_info(username):
-    if request.method == 'POST':
-        abort(404)
-    content = main.get_text(username)
-    if not content:
-        return 'login fail'
-    else:
-        try:
-            infos = main.parse_electric_info(content)
-            return jsonify(infos)
-        except IndexError as in_error:
-            return 'wrong username'
 
 
 @app.route('/api/post', methods=['GET', 'POST'])
@@ -43,19 +31,28 @@ def post_info():
         abort(404)
     else:
         try:
-            username = request.form.get('UserName')
-            if username:
-                content = main.get_text(username)
+            username = request.form.get('USERNAME')
+            passwd = request.form.get('PASSWORD')
+            url = request.form.get('URL')
+            print url
+            if username and passwd and url:
+                content = main.rob(username, passwd, url)
                 if content:
-                    infos = main.parse_electric_info(content)
-                    return jsonify(infos)
+                    return content
             else:
-                return 'wrong username'
+                return "不能为空"
 
         except IndexError as in_error:
             return 'wrong username'
 
+@app.route('/score/<username>/<passwd>', methods=['GET', 'POST'])
+@allow_cross_domain
+def get_score(username, passwd):
+    import score
+    
+    return score.get_score(username, passwd)
+
         
 
 if __name__=='__main__':
-    app.run(host='0.0.0.0', port=8000)
+    app.run(host='0.0.0.0', port=8585)
